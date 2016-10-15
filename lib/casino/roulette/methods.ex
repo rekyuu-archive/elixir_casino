@@ -1,10 +1,5 @@
-defmodule Casino.Roulette.Model do
-  alias Casino.Model.Error
-
-  defmodule Bet do
-    defstruct id: nil, name: nil, numbers: nil, bet: nil, payout: nil
-    @type t :: %Bet{id: integer, name: String.t, numbers: [integer], bet: integer, payout: integer}
-  end
+defmodule Casino.Roulette.Methods do
+  alias Casino.Model.{Bet, Error}
 
   @column_1 for n <- 1..12, do: (n * 3) - 2
   @column_2 for n <- 1..12, do: (n * 3) - 1
@@ -26,7 +21,7 @@ defmodule Casino.Roulette.Model do
   @spec horizontal_split(integer, integer) :: {:ok, Bet.t} | {:error, Error.t}
   def horizontal_split(left_number, bet) do
     cond do
-      Enum.member?(@column_3, left_number) -> {:error, %Error{reason: "Please use the left number for your split."}}
+      Enum.member?(@column_3, left_number) -> {:error, %Error{message: "Please use the left number for your split."}}
       true ->
         {:ok, %Bet{id: 2, name: "Split", numbers: [left_number, left_number + 1], bet: bet, payout: 17}}
     end
@@ -35,7 +30,7 @@ defmodule Casino.Roulette.Model do
   @spec vertical_split(integer, integer) :: {:ok, Bet.t} | {:error, Error.t}
   def vertical_split(top_number, bet) do
     cond do
-      Enum.member?([34, 35, 36], top_number) -> {:error, %Error{reason: "Please use the top number for your split."}}
+      Enum.member?([34, 35, 36], top_number) -> {:error, %Error{message: "Please use the top number for your split."}}
       true ->
         {:ok, %Bet{id: 3, name: "Split", numbers: [top_number, top_number + 3], bet: bet, payout: 17}}
     end
@@ -44,7 +39,7 @@ defmodule Casino.Roulette.Model do
   @spec street(integer, integer) :: {:ok, Bet.t} | {:error, Error.t}
   def street(left_number, bet) do
     cond do
-      Enum.member?(@column_1, left_number) -> {:error, %Error{reason: "Please use the leftmost number for your street."}}
+      Enum.member?(@column_1, left_number) -> {:error, %Error{message: "Please use the leftmost number for your street."}}
       true ->
         {:ok, %Bet{id: 4, name: "Street", numbers: [left_number, left_number + 1, left_number + 2], bet: bet, payout: 11}}
     end
@@ -53,7 +48,7 @@ defmodule Casino.Roulette.Model do
   @spec corner(integer, integer) :: {:ok, Bet.t} | {:error, Error.t}
   def corner(top_left_number, bet) do
     cond do
-      Enum.member?(@column_3, top_left_number) -> {:error, %Error{reason: "Please use the top left number for your corner."}}
+      Enum.member?(@column_3, top_left_number) -> {:error, %Error{message: "Please use the top left number for your corner."}}
       true ->
         {:ok, %Bet{id: 5, name: "Corner", numbers: [top_left_number, top_left_number + 1, top_left_number + 3, top_left_number + 4], bet: bet, payout: 8}}
     end
@@ -69,7 +64,7 @@ defmodule Casino.Roulette.Model do
     cond do
       Enum.member?(@column_1, top_left_number) ->
         {:ok, %Bet{id: 7, name: "Six Line", numbers: (for n <- top_left_number..(top_left_number + 5), do: n), bet: bet, payout: 5}}
-      true -> {:error, %Error{reason: "Please use the top left number for your six line."}}
+      true -> {:error, %Error{message: "Please use the top left number for your six line."}}
     end
   end
 
@@ -79,7 +74,7 @@ defmodule Casino.Roulette.Model do
       1 -> {:ok, %Bet{id: 8, name: "First Column", numbers: @column_1, bet: bet, payout: 2}}
       2 -> {:ok, %Bet{id: 9, name: "Second Column", numbers: @column_2, bet: bet, payout: 2}}
       3 -> {:ok, %Bet{id: 10, name: "Third Column", numbers: @column_3, bet: bet, payout: 2}}
-      _ -> {:error, %Error{reason: "Invalid column. Be sure to select column 1, 2 or 3."}}
+      _ -> {:error, %Error{message: "Invalid column. Be sure to select column 1, 2 or 3."}}
     end
   end
 
@@ -89,7 +84,7 @@ defmodule Casino.Roulette.Model do
       1 -> {:ok, %Bet{id: 11, name: "First Dozen", numbers: (for n <- 1..12, do: n), bet: bet, payout: 2}}
       2 -> {:ok, %Bet{id: 12, name: "Second Dozen", numbers: (for n <- 13..24, do: n), bet: bet, payout: 2}}
       3 -> {:ok, %Bet{id: 13, name: "Third Dozen", numbers: (for n <- 25..36, do: n), bet: bet, payout: 2}}
-      _ -> {:error, %Error{reason: "Invalid section. Be sure to select dozen 1, 2, or 3."}}
+      _ -> {:error, %Error{message: "Invalid section. Be sure to select dozen 1, 2, or 3."}}
     end
   end
 

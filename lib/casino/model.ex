@@ -1,8 +1,21 @@
 defmodule Casino.Model do
-  defmodule Error do
-    defexception reason: nil
-    @type t :: %Error{reason: any}
+  defmodule Bet do
+    defstruct id: nil, name: nil, numbers: nil, bet: nil, payout: nil
+    @type t :: %Bet{id: integer, name: String.t, numbers: [integer], bet: integer, payout: integer}
+  end
 
-    def message(%Error{reason: reason}), do: inspect(reason)
+  defmodule Error do
+    defexception message: nil
+    @type t :: %Error{message: String.t}
+  end
+
+  defmodule Result do
+    defstruct result: nil, amount: nil, user: nil
+    @type t :: %Result{result: String.t, amount: integer, user: User.t}
+  end
+
+  defmodule User do
+    defstruct coins: nil, bets: nil
+    @type t :: %User{coins: integer, bets: [Bet.t]}
   end
 end

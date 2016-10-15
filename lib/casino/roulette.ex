@@ -1,65 +1,33 @@
 defmodule Casino.Roulette do
-  require Logger
-
   import Casino.Util
-  alias Casino.Roulette.Model.Bet
+  alias Casino.Model.{Error, Result}
 
-  @spec make_bet(String.t, {:ok, Bet.t}) :: String.t
-  def make_bet(username, {:ok, bet}) do
-    user = query_data("users", username)
-    cond do
-      bet.bet > user.coins -> Logger.info "You don't have enough coins."
-      true ->
-        user = Map.put(user, :coins, user.coins - bet.bet)
-        user = Map.put(user, :bets, user.bets ++ [bet])
-        store_data("users", username, user)
-        Logger.info "Made bet."
-    end
-  end
-
+  @spec spin(String.t) :: {:ok, Result.t} | {:error, Error.t}
   def spin(username) do
-    user = query_data("users", username)
+    {:ok, user} = query_data("users", username)
 
-    Logger.info "Spinning the roulette!"
-    :timer.sleep(1000)
-    Logger.info "3..."
-    :timer.sleep(1000)
-    Logger.info "2..."
-    :timer.sleep(1000)
-    Logger.info "1..."
-    :timer.sleep(1000)
-
-    result = Enum.random(0..36)
+    number = Enum.random(0..36)
     color = cond do
-      Enum.member?(Casino.Roulette.Model.reds, result) -> "Red"
-      Enum.member?(Casino.Roulette.Model.blacks, result) -> "Black"
+      Enum.member?(Casino.Roulette.Methods.reds, number) -> "Red"
+      Enum.member?(Casino.Roulette.Methods.blacks, number) -> "Black"
     end
-
-    Logger.info "Landed on #{result} (#{color})!"
 
     coins = user.coins
-
     case user.bets do
-      [] -> Logger.info "You haven't made any bets."
+      [] -> {:error, %Error{message: "You have not made any bets."}}
       bets ->
         payouts = for bet <- bets do
           cond do
-            result in bet.numbers -> bet.bet + (bet.bet * bet.payout)
+            number in bet.numbers -> bet.bet + (bet.bet * bet.payout)
             true -> 0
           end
         end
 
-        cond do
-          sum_list(payouts) == 0 -> Logger.info "Sorry, you didn't win anything."
-          true ->
-            coins = coins + sum_list(payouts)
-            store_data("users", username, Map.put(user, :coins, coins))
-            Logger.info "Congrats, you won #{sum_list(payouts)} coins!"
-        end
+        user = Map.put(user, :coins, coins + sum_list(payouts))
+        user = Map.put(user, :bets, [])
+        {:ok, user} = store_data("users", username, user)
 
-        user = query_data("users", username)
-        Logger.info "You now have #{user.coins} coins."
-        store_data("users", username, Map.put(user, :bets, []))
+        {:ok, %Result{result: "#{color} #{number}", amount: sum_list(payouts), user: user}}
     end
   end
 end
