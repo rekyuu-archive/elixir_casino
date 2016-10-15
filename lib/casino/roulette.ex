@@ -8,8 +8,9 @@ defmodule Casino.Roulette do
 
     number = Enum.random(0..36)
     color = cond do
-      Enum.member?(Casino.Roulette.Methods.reds, number) -> "Red"
-      Enum.member?(Casino.Roulette.Methods.blacks, number) -> "Black"
+      number in Casino.Roulette.Methods.reds -> "Red "
+      number in Casino.Roulette.Methods.blacks -> "Black "
+      true -> ""
     end
 
     coins = user.coins
@@ -18,16 +19,17 @@ defmodule Casino.Roulette do
       bets ->
         payouts = for bet <- bets do
           cond do
-            number in bet.numbers -> bet.bet + (bet.bet * bet.payout)
+            number in bet.numbers -> bet.amount + (bet.amount * bet.payout)
             true -> 0
           end
         end
 
-        user = Map.put(user, :coins, coins + sum_list(payouts))
-        user = Map.put(user, :bets, [])
+        user = user
+               |> Map.put(:coins, coins + sum_list(payouts))
+               |> Map.put(:bets, [])
         {:ok, user} = store_data("users", username, user)
 
-        {:ok, %Result{result: "#{color} #{number}", amount: sum_list(payouts), user: user}}
+        {:ok, %Result{result: "#{color}#{number}", amount: sum_list(payouts), user: user}}
     end
   end
 end

@@ -1,7 +1,7 @@
 defmodule Casino.Model do
   defmodule Bet do
-    defstruct id: nil, name: nil, numbers: nil, bet: nil, payout: nil
-    @type t :: %Bet{id: integer, name: String.t, numbers: [integer], bet: integer, payout: integer}
+    defstruct id: nil, name: nil, numbers: nil, amount: nil, payout: nil
+    @type t :: %Bet{id: integer, name: String.t, numbers: [integer], amount: integer, payout: integer}
   end
 
   defmodule Error do

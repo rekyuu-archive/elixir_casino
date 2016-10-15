@@ -21,14 +21,15 @@ defmodule Casino do
     end
   end
 
-  @spec make_bet(String.t, {:ok, Bet.t}) :: {:ok, User.t} | {:error, Error.t}
-  def make_bet(username, {:ok, bet}) do
+  @spec make_bet(String.t, Bet.t) :: {:ok, User.t} | {:error, Error.t}
+  def make_bet(username, bet) do
     {:ok, user} = query_data("users", username)
     cond do
-      bet.bet > user.coins -> {:error, %Error{message: "You don't have enough coins."}}
+      bet.amount > user.coins -> {:error, %Error{message: "You don't have enough coins."}}
       true ->
-        user = Map.put(user, :coins, user.coins - bet.bet)
-        user = Map.put(user, :bets, user.bets ++ [bet])
+        user = user
+               |> Map.put(:coins, user.coins - bet.bet)
+               |> Map.put(:bets, user.bets ++ [bet])
 
         store_data("users", username, user)
     end
