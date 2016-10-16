@@ -25,7 +25,12 @@ defmodule Casino.Cards.Blackjack do
 
         cond do
           turn == 0 ->
-            {:ok, deal} = deck |> Casino.Cards.deal_cards(2, 2)
+            deal = case Casino.Cards.deal_cards(deck, 2, 2) do
+              {:error, error} ->
+                {:ok, deck} = Casino.Cards.new_deck(6)
+                deck |> Casino.Cards.deal_cards(2, 2)
+              {:ok, deal} -> deal
+            end
 
             game = %CardGame{amount: bet, payout: 1, deck: deal.deck, hands: [dealer: Enum.fetch(deal.hands, 0), player: Enum.fetch(deal.hands, 1)], turn: 1}
 
@@ -33,8 +38,8 @@ defmodule Casino.Cards.Blackjack do
             user = user
                    |> Map.put(:coins, user.coins - bet)
                    |> Map.put(:bets, bets)
+            store_data("users", username, user)
 
-            {:ok, user} = store_data("users", username, user)
             {:ok, game}
           true ->
             {:error, %Error{message: "Initial deal has already been made or a game is in progress already."}}
@@ -42,11 +47,11 @@ defmodule Casino.Cards.Blackjack do
     end
   end
 
-  def stand(username) do
+  def hit(username) do
     nil
   end
 
-  def hit(username) do
+  def stand(username) do
     nil
   end
 
