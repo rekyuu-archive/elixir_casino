@@ -4,17 +4,17 @@ defmodule Casino.Roulette do
 
   @spec spin(String.t) :: {:ok, Result.t} | {:error, Error.t}
   def spin(username) do
-    {:ok, user} = query_data("users", username)
+    {:ok, user} = Casino.get_user(username)
 
     number = Enum.random(0..36)
     color = cond do
-      number in Casino.Roulette.Methods.reds -> "Red "
-      number in Casino.Roulette.Methods.blacks -> "Black "
+      number in Casino.Roulette.Bet.reds -> "Red "
+      number in Casino.Roulette.Bet.blacks -> "Black "
       true -> ""
     end
 
     coins = user.coins
-    case user.bets do
+    case user.bets.roulette do
       [] -> {:error, %Error{message: "You have not made any bets."}}
       bets ->
         payouts = for bet <- bets do
@@ -24,12 +24,13 @@ defmodule Casino.Roulette do
           end
         end
 
+        clear_bets = user.bets |> Map.put(:roulette, [])
         user = user
-               |> Map.put(:coins, coins + sum_list(payouts))
-               |> Map.put(:bets, [])
+               |> Map.put(:coins, coins + Enum.sum(payouts))
+               |> Map.put(:bets, clear_bets)
         {:ok, user} = store_data("users", username, user)
 
-        {:ok, %Result{result: "#{color}#{number}", amount: sum_list(payouts), user: user}}
+        {:ok, %Result{result: "#{color}#{number}", amount: Enum.sum(payouts), user: user}}
     end
   end
 end

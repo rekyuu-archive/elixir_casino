@@ -1,4 +1,4 @@
-defmodule Casino.Roulette.Methods do
+defmodule Casino.Roulette.Bet do
   alias Casino.Model.{Bet, Error}
 
   @column_1 for n <- 1..12, do: (n * 3) - 2

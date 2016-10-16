@@ -4,6 +4,26 @@ defmodule Casino.Model do
     @type t :: %Bet{id: integer, name: String.t, numbers: [integer], amount: integer, payout: integer}
   end
 
+  defmodule Card do
+    defstruct name: nil, suit: nil, value: nil
+    @type t :: %Card{name: String.t, suit: atom, value: integer}
+  end
+
+  defmodule CardGame do
+    defstruct amount: nil, payout: nil, deck: nil, hands: nil, turn: nil
+    @type t :: %CardGame{amount: integer, payout: integer, deck: Deck.t, hands: [{atom, Card.t}], turn: integer}
+  end
+
+  defmodule Deck do
+    defstruct cards: nil
+    @type t :: %Deck{cards: [Card.t]}
+  end
+
+  defmodule Draw do
+    defstruct card: nil, deck: nil
+    @type t :: %Draw{card: Card.t, deck: Deck.t}
+  end
+
   defmodule Error do
     defexception message: nil
     @type t :: %Error{message: String.t}
@@ -16,6 +36,6 @@ defmodule Casino.Model do
 
   defmodule User do
     defstruct coins: nil, bets: nil
-    @type t :: %User{coins: integer, bets: [Bet.t]}
+    @type t :: %User{coins: integer, bets: %{roulette: [Bet.t], blackjack: CardGame.t}}
   end
 end

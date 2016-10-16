@@ -1,7 +1,4 @@
 defmodule Casino.Util do
-  def sum_list([]), do: 0
-  def sum_list([h|t]), do: h + sum_list(t)
-
   @spec store_data(String.t, String.t, any) :: {:ok, any}
   def store_data(table, key, value) do
     file = '_db/#{table}.dets'
