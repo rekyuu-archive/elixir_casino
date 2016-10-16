@@ -8,7 +8,12 @@ defmodule Casino do
 
   @spec create_user(String.t) :: {:ok, User.t}
   def create_user(username) do
-    store_data("users", username, %User{coins: @initial_coins, bets: []})
+    {:ok, user} = query_data("users", username)
+
+    case user do
+      nil -> store_data("users", username, %User{coins: @initial_coins, bets: []})
+      user -> {:error, %Error{message: "User already exists."}}
+    end
   end
 
   @spec get_user(String.t) :: {:ok, User.t} | {:error, Error.t}
